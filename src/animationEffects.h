@@ -5,44 +5,66 @@
 #include <internal/RgbColor.h>
 #include <NeoPixelBus.h>
 
-class Annimation {
-private:
-    size_t currentStep;
-public:
-    const size_t stepCount;
 
-    virtual void reset() = 0;
-    virtual bool step() = 0;
+class Animation {
+protected:
+    size_t stepCounter = 0;
+public:
+    /**
+     * Step once in a annimation
+     * @param pixels Array of pixels
+     * @param pixelCount Amount of pixels
+     * @return true if animation is done
+     */
+    virtual bool step(RgbColor *pixels, size_t pixelCount)= 0;
+
+    void reset() {
+        stepCounter = 0;
+    }
 };
 
-template<typename bus_t>
-class Annimator {
-    Annimation *annimation;
-    bus_t &bus;
-    size_t stepTime;
-    size_t nextStep;
+class Blink : public Animation {
 public:
-    explicit Annimator(bus_t &bus) : bus(bus) {};
+    bool step(RgbColor *pixels, size_t pixelCount) override;
+};
 
-    void setAnnimation(Annimation *annimation, size_t duration, size_t steps) {
-        annimation->reset();
-        annimation->step();
-        stepTime = duration / steps;
-        nextStep = millis() + stepTime;
+
+template<typename bus_t, size_t pixelCount>
+class Animator {
+    bus_t &bus;
+    RgbColor pixels[pixelCount];
+    Animation *currentAnimation;
+public:
+    explicit Animator(bus_t &bus) : bus(bus) {};
+
+    void setAnimation(Animation *animation) {
+        currentAnimation = animation;
+        animation->reset();
     }
 
     void update() {
-        if (millis() > nextStep && annimation) {
-            nextStep += stepTime;
-            if (!annimation->step()) {
-                annimation = nullptr;
+        if (currentAnimation) {
+            if (currentAnimation->step(pixels, pixelCount)) {
+                currentAnimation = nullptr;
             }
+            for (size_t i = 0; i < pixelCount; i++) {
+                Serial.print("Drawing pixel ");
+                Serial.print(i);
+                Serial.print(" With values: ");
+                Serial.print(pixels[i].R);
+                Serial.print(',');
+                Serial.print(pixels[i].G);
+                Serial.print(',');
+                Serial.print(pixels[i].B);
+                Serial.println();
+                bus.SetPixelColor(i, pixels[i]);
+            }
+            bus.Show();
         }
     }
 
-    bool annimationRunning() {
-        return annimation == nullptr;
+    bool animationPlaying() {
+        return currentAnimation != nullptr;
     }
 };
-
 
