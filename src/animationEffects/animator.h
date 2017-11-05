@@ -13,7 +13,16 @@ class Animator {
 public:
     explicit Animator(bus_t &bus) : bus(bus) {};
 
+    void reset() {
+        if (currentAnimation)
+            currentAnimation->reset();
+        for (size_t i = 0; i < pixelCount; i++) {
+            pixels[i] = RgbColor(0);
+        }
+    }
+
     void setAnimation(Animation *animation) {
+        reset();
         currentAnimation = animation;
         animation->reset();
     }
@@ -21,6 +30,7 @@ public:
     void update() {
         if (currentAnimation) {
             if (currentAnimation->step(pixels, pixelCount)) {
+                reset();
                 currentAnimation = nullptr;
             }
             for (size_t i = 0; i < pixelCount; i++) {
