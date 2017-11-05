@@ -2,6 +2,7 @@
 
 #include <cwchar>
 #include <internal/RgbColor.h>
+#include <assert.h>
 #include "animation.h"
 
 
@@ -10,28 +11,35 @@ class Animator {
     bus_t &bus;
     RgbColor pixels[pixelCount];
     Animation *currentAnimation;
+    size_t count = 0;
 public:
     explicit Animator(bus_t &bus) : bus(bus) {};
 
     void reset() {
-        if (currentAnimation)
+        if (currentAnimation) {
             currentAnimation->reset();
+        }
         for (size_t i = 0; i < pixelCount; i++) {
             pixels[i] = RgbColor(0);
         }
     }
 
-    void setAnimation(Animation *animation) {
-        reset();
+    void setAnimation(Animation *animation, size_t count) {
+        assert(animation != nullptr);
         currentAnimation = animation;
-        animation->reset();
+        this->count = count;
+        reset();
     }
 
     void update() {
         if (currentAnimation) {
             if (currentAnimation->step(pixels, pixelCount)) {
-                reset();
-                currentAnimation = nullptr;
+                if (--count > 0) {
+                    reset();
+                } else {
+                    reset();
+                    currentAnimation = nullptr;
+                }
             }
             for (size_t i = 0; i < pixelCount; i++) {
                 bus.SetPixelColor(i, pixels[i]);
