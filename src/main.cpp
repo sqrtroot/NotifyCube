@@ -7,28 +7,28 @@
 //
 
 #include <NeoPixelBus.h>
-#include "animationEffects.h"
 
-const uint16_t PixelCount = 8; // make sure to set this to the number of pixels in your strip
+#include <animationEffects/animator.h>
+#include <animationEffects/defaultAnimations.h>
+
+
+const uint16_t PixelCount = 12; // make sure to set this to the number of pixels in your strip
 
 NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(PixelCount);
 Animator<decltype(strip), PixelCount> animator(strip);
-Blink b;
+
 
 void setup() {
     Serial.begin(9600);
     strip.Begin();
     strip.Show();
-    animator.setAnimation(&b);
+    animator.setAnimation(&fill);
 }
 
 
 void loop() {
-    if (!animator.animationPlaying()) {
-        animator.setAnimation(&b);
-    }
     animator.update();
-    delay(10);
+    delay(100);
 }
 
 

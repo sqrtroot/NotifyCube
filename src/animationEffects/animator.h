@@ -1,32 +1,8 @@
 #pragma once
 
 #include <cwchar>
-#include <functional>
 #include <internal/RgbColor.h>
-#include <NeoPixelBus.h>
-
-
-class Animation {
-protected:
-    size_t stepCounter = 0;
-public:
-    /**
-     * Step once in a annimation
-     * @param pixels Array of pixels
-     * @param pixelCount Amount of pixels
-     * @return true if animation is done
-     */
-    virtual bool step(RgbColor *pixels, size_t pixelCount)= 0;
-
-    void reset() {
-        stepCounter = 0;
-    }
-};
-
-class Blink : public Animation {
-public:
-    bool step(RgbColor *pixels, size_t pixelCount) override;
-};
+#include "animation.h"
 
 
 template<typename bus_t, size_t pixelCount>
