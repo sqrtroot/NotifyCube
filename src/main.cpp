@@ -22,7 +22,7 @@ void setup() {
     Serial.begin(9600);
     strip.Begin();
     strip.Show();
-    animator.setAnimation(&fill);
+    animator.setAnimation(&fill, 2);
 }
 
 
