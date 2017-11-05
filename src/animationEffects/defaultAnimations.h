@@ -6,7 +6,7 @@
 Animation fill([](size_t &stepCounter, RgbColor *buffer, size_t length) {
     buffer[stepCounter] = RgbColor(255);
     stepCounter++;
-    return stepCounter > length;
+    return stepCounter == length - 1;
 });
 
 SteppedAnimation<2> blink({
